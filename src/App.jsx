@@ -30,14 +30,10 @@ const Emoji = (emoji, i) => {
 };
 
 function App() {
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [emojis, setEmojis] = useState(() => {
     return JSON.parse(localStorage.getItem("emojis")) || [];
   });
-  function handleMouseMove(event) {
-    setCursorPos({ x: event.clientX, y: event.clientY });
-  }
 
   function handlePlaceEmoji(event) {
     if (
@@ -62,7 +58,7 @@ function App() {
   }
 
   function handleMoveEmojis(e) {
-    // not pretty solution :(
+    // not pretty solution
     console.log;
     if (e.target.tagName === "P") {
       handleRemoveEmojis(e);
@@ -78,13 +74,6 @@ function App() {
       });
     }
   }
-
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("emojis", JSON.stringify(emojis));
@@ -114,7 +103,52 @@ function App() {
     };
   }, [selectedFeature]);
 
-  function renderCursor() {
+  function RenderCursorCheat() {
+    function handleMouseMove(event) {
+      document.documentElement.style.setProperty("--x", event.clientX + "px");
+      document.documentElement.style.setProperty("--y", event.clientY + "px");
+    }
+
+    useEffect(() => {
+      window.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+      };
+    }, []);
+
+    if (emojiList.map((obj) => obj.emoji).includes(selectedFeature)) {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            left: "calc(var(--x) - 16px)",
+            top: "calc(var(--y) - 16px)",
+            opacity: 0.7,
+            pointerEvents: "none",
+            zIndex: "9999",
+          }}
+        >
+          {selectedFeature}
+        </div>
+      );
+    }
+    return "";
+  }
+
+  function RenderCursorReact() {
+    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+
+    function handleMouseMove(event) {
+      setCursorPos({ x: event.clientX, y: event.clientY });
+    }
+
+    useEffect(() => {
+      window.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+      };
+    }, []);
+
     if (emojiList.map((obj) => obj.emoji).includes(selectedFeature)) {
       return (
         <div
@@ -136,7 +170,10 @@ function App() {
 
   return (
     <div className="App">
-      {renderCursor()}
+      {/* this is the cheat way, which doesn't cause re-render for every mouse movement. */}
+      <RenderCursorCheat />
+      {/* or the react way, which causes re-render for every mouse movement. */}
+      <RenderCursorReact />
       {emojis.map((emoji, i) => Emoji(emoji, i))}
       <footer>
         {emojiList.map((emoji) => (
