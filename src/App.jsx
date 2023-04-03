@@ -14,6 +14,7 @@ const emojiList = [
 const Emoji = (emoji, i) => {
   return (
     <p
+      id={emoji.x * emoji.y}
       style={{
         position: "absolute",
         left: emoji.x - 16,
@@ -46,7 +47,12 @@ function App() {
     ) {
       setEmojis((prev) => [
         ...prev,
-        { emoji: selectedFeature, x: event.clientX, y: event.clientY },
+        {
+          emoji: selectedFeature,
+          x: event.clientX,
+          y: event.clientY,
+          id: event.clientX * event.clientY,
+        },
       ]);
     }
   }
@@ -55,24 +61,22 @@ function App() {
     setEmojis([]);
   }
 
-  function handleMoveEmojis() {
-    setEmojis((prev) => {
-      return prev.map((emoji) => {
-        return {
-          ...emoji,
-          x: emoji.x + 10,
-          y: emoji.y + 10,
-        };
-      });
-    });
+  function handleMoveEmojis(e) {
+    // not pretty solution :(
+    console.log;
+    if (e.target.tagName === "P") {
+      handleRemoveEmojis(e);
+      setSelectedFeature(e.target.innerText);
+    }
   }
 
-  function handleRemoveEmojis() {
-    setEmojis((prev) => {
-      return prev.filter((emoji) => {
-        return emoji.x < 0 || emoji.y < 0;
+  function handleRemoveEmojis(e) {
+    //  remove selected emoji
+    if (e.target.tagName === "P") {
+      setEmojis((prev) => {
+        return prev.filter((emoji) => emoji.id !== parseInt(e.target.id));
       });
-    });
+    }
   }
 
   useEffect(() => {
@@ -93,11 +97,11 @@ function App() {
         func = handleRemoveEmojis;
         break;
       }
-      case "move": {
+      case "🔀": {
         func = handleMoveEmojis;
         break;
       }
-      case "clear": {
+      case "🧹": {
         return clearScreen();
       }
       default: {
@@ -133,9 +137,7 @@ function App() {
   return (
     <div className="App">
       {renderCursor()}
-      {emojis.map((emoji, i) => {
-        return Emoji(emoji, i);
-      })}
+      {emojis.map((emoji, i) => Emoji(emoji, i))}
       <footer>
         {emojiList.map((emoji) => (
           <button
