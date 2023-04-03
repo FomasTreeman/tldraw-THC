@@ -173,7 +173,7 @@ function App() {
       {/* this is the cheat way, which doesn't cause re-render for every mouse movement. */}
       <RenderCursorCheat />
       {/* or the react way, which causes re-render for every mouse movement. */}
-      <RenderCursorReact />
+      {/* <RenderCursorReact /> */}
       {emojis.map((emoji, i) => Emoji(emoji, i))}
       <footer>
         {emojiList.map((emoji) => (
